@@ -53,7 +53,7 @@ $name = $up->from->first_name;
 $message_id = $up->message->message_id;
 $data = $up->data;
 }
-$admin=1390519416;
+$admin=5581457665;
 $UserB = bot('getme',['bot'])->result->username;
 $BotUser ="$UserB";
 
