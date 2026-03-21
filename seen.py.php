@@ -4,7 +4,7 @@
 #تابع لقناة @SeroBots
 <?php
 ob_start();
-$token = "5701601489:AAGaX7GELjUHvfcJHDormwhb63_3z9SGaCA"; 
+$token = "6238340112:AAHnFS_DjRE_NXUBSJp_FKoSQC91mUSAT6w"; 
 define("API_KEY",$token);
 echo file_get_contents("https://api.telegram.org/bot" . API_KEY . "/setwebhook?url=" . $_SERVER['SERVER_NAME'] . "" . $_SERVER['SCRIPT_NAME']);
 function bot($method,$datas=[]){
@@ -68,7 +68,7 @@ bot('sendmessage',[
 'parse_mode'=>"markdown",
 'reply_markup'=>json_encode([
 'inline_keyboard'=>[
-[['text'=>"بدء رشق جديد ✅", 'callback_data'=>'new']],
+[['text'=>"بدء رشق جديد 😂✅", 'callback_data'=>'new']],
 ]
 ])
 ]);
@@ -89,7 +89,7 @@ $vv=bot('editmessagetext',[
 'parse_mode'=>"markdown",
 'reply_markup'=>json_encode([
 'inline_keyboard'=>[
-[['text'=>"بدء رشق جديد ✅", 'callback_data'=>'new']],
+[['text'=>"بدء رشق جديد 😂😂✅", 'callback_data'=>'new']],
 ]
 ])
 ])->result->message_id; 
@@ -136,7 +136,7 @@ $s=bot('sendmessage',[
 'chat_id'=>$chat_id,
 'text'=>"*
 - تم ارسال طلب الرشق ✔
-- ننتضر الاستجابه 🔥
+- ننتضر الاستجابه 😂🔥
 *",
 'parse_mode'=>"markdown",
 
@@ -191,7 +191,7 @@ if($text == "/start Sero") {
 1-لاتعيد الرشق اكثر من مره واحده ؛ 🛡
 2-سيوصل الرشق بعد ساعه ام نص ساعه بعد الطلب ؛ ✔
 
-شكرا لاستخدامكم البوت الخاص بنا ❤
+شكرا لاستخدامكم البوت الخاص بنا ❤Dev: @E2E12
 ",
 'parse_mode'=>"markdown",
 
