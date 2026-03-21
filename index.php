@@ -1,20 +1,29 @@
 <?php
 ob_start();
 
-// سحب التوكن ورابط الرشق من المتغيرات
+// 1. توكن البوت (للتواصل مع تليجرام)
 $token = getenv('BOT_TOKEN'); 
 define("API_KEY", $token);
 
-// سحب رابط الرشق (مثلاً: https://darkfollow.shop/api/v2)
-$rashq_api = getenv('RASHQ_URL');
+// 2. مفتاح موقع الرشق (الخاص بحسابك في darkfollow)
+$site_key = getenv('SMM_DB_KEY'); 
 
-// طلب الـ Webhook يجب أن يذهب لتليجرام حصراً
+// 3. رابط موقع الرشق الأساسي
+$api_url = "https://darkfollow.shop/api/v2";
+
+// سطر الويبهوك (يجب أن يبقى يشير إلى تليجرام ليعمل البوت)
 echo file_get_contents("https://api.telegram.org/bot" . API_KEY . "/setwebhook?url=" . $_SERVER['SERVER_NAME'] . "" . $_SERVER['SCRIPT_NAME']);
 
 function bot($method, $datas=[]){
-    // الدالة يجب أن تتصل بتليجرام لإرسال الرسائل للمستخدمين
     $url = "https://api.telegram.org/bot" . API_KEY . "/" . $method;
     $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $datas);
+    $res = curl_exec($ch);
+    return json_decode($res);
+}
+
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $datas);
