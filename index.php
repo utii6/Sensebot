@@ -33,8 +33,6 @@ function bot($method, $datas=[]){
     } else {
         return json_decode($res);
     }
-}
-
 
     curl_setopt($ch,CURLOPT_URL,$url);
     curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
