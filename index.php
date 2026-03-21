@@ -1,15 +1,17 @@
-#برمجه @JJJ22J 
-#غير مسموح بالبيع اخلي مسؤليتي ع اي شخص يبيعه
-#من الصفر برمجتي 
-#تابع لقناة @SeroBots
 <?php
 ob_start();
-$token = "6238340112:AAHnFS_DjRE_NXUBSJp_FKoSQC91mUSAT6w"; 
+// سحب التوكن من متغيرات البيئة باسم BOT_TOKEN
+$token = getenv('BOT_TOKEN'); 
 define("API_KEY",$token);
+
+// سحب رابط الرشق من متغيرات البيئة باسم RASHQ_URL
+$rashq_api = getenv('RASHQ_URL');
+
 echo file_get_contents("https://api.telegram.org/bot" . API_KEY . "/setwebhook?url=" . $_SERVER['SERVER_NAME'] . "" . $_SERVER['SCRIPT_NAME']);
 function bot($method,$datas=[]){
     $url = "https://api.telegram.org/bot".API_KEY."/".$method;
 $ch = curl_init();
+
     curl_setopt($ch,CURLOPT_URL,$url);
     curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
     curl_setopt($ch,CURLOPT_POSTFIELDS,$datas);
@@ -158,7 +160,7 @@ bot('sendmessage',[
  تم ارسال 10k مشاهده لكل منشورات قناتك بنجاح
 *
 
-[تعليمات البوت ✅](https://t.me/$BotUser?start=Sero)
+[تعليمات البوت ✅](https://t.me/$BotUser?start=kkek2)
 
 للقناة : @".str_replace('@',null,$text)."
 
@@ -181,7 +183,7 @@ bot('sendmessage',[
 
 }
 
-if($text == "/start Sero") {
+if($text == "/start kkek2") {
 	bot('sendmessage',[
 'chat_id'=>$chat_id,
 'message_id'=>$message_id,
