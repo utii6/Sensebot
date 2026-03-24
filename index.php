@@ -1,198 +1,114 @@
-#برمجه @JJJ22J 
-#غير مسموح بالبيع اخلي مسؤليتي ع اي شخص يبيعه
-#من الصفر برمجتي 
-#تابع لقناة @SeroBots
 <?php
 ob_start();
+
+// --- الإعدادات الأساسية ---
 $token = "6238340112:AAEl9pNeqoq0A6TsahuhLZYeO-cWmnQCJKQ"; 
-define("API_KEY",$token);
-echo file_get_contents("https://api.telegram.org/bot" . API_KEY . "/setwebhook?url=" . $_SERVER['SERVER_NAME'] . "" . $_SERVER['SCRIPT_NAME']);
-function bot($method,$datas=[]){
+define("API_KEY", $token);
+
+// بيانات موقع الرشق الجديدة
+$API_URL = "https://darkfollow.shop/api/v2";
+$API_KEY_SITE = "efToDQz2mOcIK42Damp8u549cRCDhKykM40xKXIiZ3bxcd5TGYvVzW3M3KdZ";
+$SERVICE_ID = "1856";
+
+// رابط قاعدة بيانات Koyeb
+$db_url = "Postgres://koyeb-adm:npg_HI5s4bcWvzre@ep-dawn-credit-agsq9mbt.c-2.eu-central-1.pg.koyeb.app/koyebdb";
+
+// الاتصال بقاعدة البيانات
+$conn = pg_connect($db_url);
+
+// إنشاء الجداول إذا لم تكن موجودة (تلقائياً)
+pg_query($conn, "CREATE TABLE IF NOT EXISTS users (
+    user_id BIGINT PRIMARY KEY,
+    last_request TIMESTAMP,
+    step VARCHAR(50)
+)");
+
+function bot($method, $datas=[]){
     $url = "https://api.telegram.org/bot".API_KEY."/".$method;
-$ch = curl_init();
-    curl_setopt($ch,CURLOPT_URL,$url);
-    curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
-    curl_setopt($ch,CURLOPT_POSTFIELDS,$datas);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $datas);
     $res = curl_exec($ch);
-    if(curl_error($ch)){
-        var_dump(curl_error($ch));
-    }else{
-        return json_decode($res);
-    }
+    return json_decode($res);
 }
- 
- 
-
-
-
 
 $update = json_decode(file_get_contents('php://input'));
-$message= $update->message;
-$text = $message->text;
-$chat_id= $message->chat->id;
-$name = $message->from->first_name;
-$user = $message->from->username;
-$message_id = $update->message->message_id;
-$from_id = $update->message->from->id;
-$message = $update->message;
-$chat_id = $message->chat->id;
-
-mkdir("makeorder");
-mkdir("message");
-$bot_f = file_get_contents("makeorder/$from_id.txt");
-$msg_idd = file_get_contents("message/$from_id.txt");
-
-
-if(isset($update->callback_query)){
-
-$up = $update->callback_query;
-$chat_id = $up->message->chat->id;
-$from_id = $up->from->id;
-$user = $up->from->username;
-$name = $up->from->first_name;
-$message_id = $up->message->message_id;
-$data = $up->data;
+if($update->message){
+    $chat_id = $update->message->chat->id;
+    $from_id = $update->message->from->id;
+    $text = $update->message->text;
+    $name = $update->message->from->first_name;
+} elseif($update->callback_query){
+    $chat_id = $update->callback_query->message->chat->id;
+    $from_id = $update->callback_query->from->id;
+    $data = $update->callback_query->data;
+    $message_id = $update->callback_query->message->message_id;
 }
-$admin=5581457665;
-$UserB = bot('getme',['bot'])->result->username;
-$BotUser ="$UserB";
+
+$admin = 5581457665;
+
+// جلب بيانات المستخدم من القاعدة
+$res = pg_query($conn, "SELECT * FROM users WHERE user_id = $from_id");
+$user_data = pg_fetch_assoc($res);
 
 if($text == "/start") {
-bot('sendmessage',[
-'chat_id'=>$chat_id,
-'message_id'=>$message_id,
-"text"=>"*
-- اهلا بك عزيزي ❲ $name ❳ في بوت رشق مشاهدات تلكرام
-- يمكنك رشق مشاهدات ( 10k ) لگل منشوراتك من خلال البوت مجانا
-*",
-'parse_mode'=>"markdown",
-'reply_markup'=>json_encode([
-'inline_keyboard'=>[
-[['text'=>"بدء رشق جديد 😂✅", 'callback_data'=>'new']],
-]
-])
-]);
-}
-
-
-
-if($data == "backk"){
-	
-
-$vv=bot('editmessagetext',[
-'chat_id'=>$chat_id,
-'message_id'=>$message_id,
-'text'=>"*
-- اهلا بك عزيزي ❲ $name ❳ في بوت رشق مشاهدات تلكرام
-- يمكنك رشق مشاهدات ( 10k ) لگل منشوراتك من خلال البوت مجانا
-*",
-'parse_mode'=>"markdown",
-'reply_markup'=>json_encode([
-'inline_keyboard'=>[
-[['text'=>"بدء رشق جديد 😂✅", 'callback_data'=>'new']],
-]
-])
-])->result->message_id; 
-file_put_contents("makeorder/$from_id.txt",null);
-
+    pg_query($conn, "INSERT INTO users (user_id, step) VALUES ($from_id, 'none') ON CONFLICT (user_id) DO UPDATE SET step = 'none'");
+    bot('sendmessage', [
+        'chat_id' => $chat_id,
+        'text' => "*- اهلا بك عزيزي ❲ $name ❳ في بوت رشق مشاهدات تلكرام\n- يمكنك رشق مشاهدات مجاناً كل ساعتين ✅*",
+        'parse_mode' => "markdown",
+        'reply_markup' => json_encode(['inline_keyboard' => [[['text' => "بدء رشق جديد 🚀", 'callback_data' => 'new']]]])
+    ]);
 }
 
 if($data == "new"){
-	
-
-$vv=bot('editmessagetext',[
-'chat_id'=>$chat_id,
-'message_id'=>$message_id,
-'text'=>"
-*ارسل يوزر القناة الأن ✔*
-- مع @ او بدون @
-",
-'parse_mode'=>"markdown",
-'disable_web_page_preview'=>'true',
-'reply_markup'=>json_encode([
-'inline_keyboard'=>[
-[['text'=>"• رجوع •", 'callback_data'=>'backk']],
-]
-])
-])->result->message_id; 
-file_put_contents("makeorder/$from_id.txt","StartNew");
-file_put_contents("message/2$from_id.txt",$vv);
+    // فحص الوقت (ساعتين = 7200 ثانية)
+    if($user_data['last_request']){
+        $last_time = strtotime($user_data['last_request']);
+        $diff = time() - $last_time;
+        if($diff < 7200){
+            $remain = 7200 - $diff;
+            $hours = floor($remain / 3600);
+            $minutes = floor(($remain % 3600) / 60);
+            bot('answerCallbackQuery', [
+                'callback_query_id' => $update->callback_query->id,
+                'text' => "⏳ متبقي $hours ساعة و $minutes دقيقة للطلب مجدداً.",
+                'show_alert' => true
+            ]);
+            return;
+        }
+    }
+    
+    pg_query($conn, "UPDATE users SET step = 'waiting_link' WHERE user_id = $from_id");
+    bot('editmessagetext', [
+        'chat_id' => $chat_id,
+        'message_id' => $message_id,
+        'text' => "*ارسل يوزر القناة أو رابط المنشور الأن ✔*",
+        'parse_mode' => "markdown",
+        'reply_markup' => json_encode(['inline_keyboard' => [[['text' => "• رجوع •", 'callback_data' => 'start_back']]]])
+    ]);
 }
 
+if($text && $user_data['step'] == 'waiting_link' && $text != "/start"){
+    pg_query($conn, "UPDATE users SET step = 'none', last_request = NOW() WHERE user_id = $from_id");
+    
+    bot('sendmessage', ['chat_id' => $chat_id, 'text' => "⏳ جاري إرسال الطلب للموقع..."]);
 
+    // إرسال الطلب لـ API الموقع الجديد
+    $api_res = file_get_contents("$API_URL?key=$API_KEY_SITE&action=add&service=$SERVICE_ID&link=$text&quantity=1000");
+    $res_json = json_decode($api_res);
 
+    bot('sendmessage', [
+        'chat_id' => $chat_id,
+        'text' => "✅ تم إرسال الطلب بنجاح!\n🔗 الرابط: $text\n⏰ يمكنك الطلب مرة أخرى بعد ساعتين.",
+        'parse_mode' => "markdown"
+    ]);
 
-
-if($text != "/start" and $bot_f=="StartNew") {
-
-	file_put_contents("makeorder/$from_id.txt",null);
-	
-	bot('deletemessage',[
-'chat_id'=>$chat_id,
-'message_id'=>file_get_contents("message/2$from_id.txt"),
-]);
-$s=bot('sendmessage',[
-'chat_id'=>$chat_id,
-'text'=>"*
-- تم ارسال طلب الرشق ✔
-- ننتضر الاستجابه 😂🔥
-*",
-'parse_mode'=>"markdown",
-
-])->result->message_id; 
-file_put_contents("message/$from_id.txt",$s);
-for($i=25;$i<30;$i++){
-$vvsend = file_get_contents("http://sero2link.ml/N/vg.php?user=". str_replace('@',null,$text));
+    // إشعار للأدمن
+    bot('sendmessage', [
+        'chat_id' => $admin,
+        'text' => "🔔 طلب جديد:\nالمستخدم: $from_id\nالرابط: $text"
+    ]);
 }
-
-bot('deletemessage',[
-'chat_id'=>$chat_id,
-'message_id'=>file_get_contents("message/$from_id.txt"),
-]);
-
-bot('sendmessage',[
-'chat_id'=>$chat_id,
-'message_id'=>$message_id,
-"text"=>"*
- تم ارسال 10k مشاهده لكل منشورات قناتك بنجاح
-*
-
-[تعليمات البوت ✅](https://t.me/$BotUser?start=qassim)
-
-للقناة : @".str_replace('@',null,$text)."
-
-",
-'parse_mode'=>"markdown",
-
-]);
-bot('sendmessage',[
-'chat_id'=>$admin,
-'message_id'=>$message_id,
-"text"=>"*
-*طلب جديد ✅*
-
-للقناة : @".str_replace('@',null,$text)."
-
-*",
-'parse_mode'=>"markdown",
-
-]);
-
-}
-
-if($text == "/start qassim") {
-	bot('sendmessage',[
-'chat_id'=>$chat_id,
-'message_id'=>$message_id,
-"text"=>"*
-تعليمات البوت •
-*
-1-لاتعيد الرشق اكثر من مره واحده ؛ 🛡
-2-سيوصل الرشق بعد ساعه ام نص ساعه بعد الطلب ؛ ✔
-
- @E2E12 شكرا لاستخدامكم البوت الخاص بنا ❤
-",
-'parse_mode'=>"markdown",
-
-]);
-}
+?>
