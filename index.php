@@ -111,7 +111,7 @@ if($data == "new"){
     bot('editmessagetext',[
         'chat_id'=>$chat_id,
         'message_id'=>$message_id,
-        'text'=>"*✔دز رابـط منشورك، بالشكل*:/n https//t.me/qd3qd/6",
+        'text' => "*✔ دز رابط منشورك بالشكل:*\nhttps://t.me/qd3qd/6",
         'parse_mode'=>"markdown",
         'reply_markup'=>json_encode([
             'inline_keyboard'=>[[['text'=>"• رجوع •", 'callback_data'=>'backk']]]
