@@ -31,8 +31,9 @@ function bot($method, $datas=[]){
 
 // دالة فحص الاشتراك
 function is_joined($user_id, $channel){
-    $res = bot('getChatMember', ['chat_id' => $channel, 'user_id' => $user_id]);
-    $st = $res->result->status;
+    $res = bot('getChatMember', ['chat_id'=>$channel, 'user_id'=>$user_id]);
+    if(!$res['ok']) return false; // لو فشل الطلب
+    $st = $res['result']['status'];
     return ($st == 'member' || $st == 'creator' || $st == 'administrator');
 }
 
@@ -98,8 +99,8 @@ if($data == "new"){
     // 2. فحص وقت الانتظار (ساعتين = 7200 ثانية)
     if($user_data['last_request']){
         $diff = time() - strtotime($user_data['last_request']);
-        if($diff < 7200){
-            $rem = 7200 - $diff;
+        if($diff < 1800){
+            $rem = 1800 - $diff;
             $h = floor($rem/3600); $m = floor(($rem%3600)/60);
             bot('answerCallbackQuery', ['callback_query_id'=>$update->callback_query->id, 'text'=>"😂⏳ يحلو متبقي  $h ساعة و $m ، دقيقة للطلب بعد.", 'show_alert'=>true]);
             return;
@@ -110,7 +111,7 @@ if($data == "new"){
     bot('editmessagetext',[
         'chat_id'=>$chat_id,
         'message_id'=>$message_id,
-        'text'=>"*ارسل يوزر القناة الأن ✔*\n- مع @ او بدون @",
+        'text'=>"*✔دز رابـط منشورك، بالشكل*:/n https//t.me/qd3qd/6",
         'parse_mode'=>"markdown",
         'reply_markup'=>json_encode([
             'inline_keyboard'=>[[['text'=>"• رجوع •", 'callback_data'=>'backk']]]
@@ -128,13 +129,13 @@ if($text != "/start" and $user_data['step'] == "StartNew") {
 
     bot('sendmessage',[
         'chat_id'=>$chat_id,
-        "text"=>"* تم ارسال 10k مشاهده لكل منشورات قناتك بنجاح\n\nللقناة : @$clean_text\n\nيمكنك طلب المزيد  ✅*",
+        "text"=>"* تم ارسال 10k مشاهده لكل منشورات قناتك بنجاح\n\nللقناة : $clean_text\n\nيمكنك طلب المزيد  ✅*",
         'parse_mode'=>"markdown",
     ]);
 
     bot('sendmessage',[
         'chat_id'=>$admin,
-        "text"=>"*طلب جديد 😂✅*\nللقناة : @$clean_text",
+        "text"=>"*طلب جديد 😂✅*\nللقناة : $clean_text:/n [تعليمات البوت ✅](https://t.me/$BotUser?start=qassim)",
         'parse_mode'=>"markdown",
     ]);
 }
