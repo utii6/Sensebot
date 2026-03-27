@@ -75,55 +75,81 @@ if($text == "/start") {
     ]);
 }
 
+if(isset($update->callback_query)){
+    $data = $update->callback_query->data;
+    $chat_id = $update->callback_query->message->chat->id;
+    $from_id = $update->callback_query->from->id;
+    $message_id = $update->callback_query->message->message_id;
+}
+
 if($data == "backk"){
     pg_query($conn, "UPDATE bot_users SET step = 'none' WHERE user_id = $from_id");
-    bot('editmessagetext',[
+
+    bot('editMessageText',[
         'chat_id'=>$chat_id,
         'message_id'=>$message_id,
-        'text'=>"*- اهلا بك عزيزي ❲ $name ❳ في بوت رشق مشاهدات تلكرام\n- يمكنك رشق مشاهدات ( 10k ) لگل منشوراتك من خلال البوت مجانا*",
-        'parse_mode'=>"markdown",
+        'text'=>"*- اهلا بك عزيزي $name في بوت رشق مشاهدات تلكرام\n- يمكنك رشق مشاهدات ( 10k ) لگل منشوراتك من خلال البوت مجانا*",
+        'parse_mode'=>"Markdown",
         'reply_markup'=>json_encode([
-            'inline_keyboard'=>[[['text'=>"بدء رشق جديد 😂✅", 'callback_data'=>'new']]]
-        ])
+            'inline_keyboard'=>[
+                [
+                    ['text'=>"بدء رشق جديد 😂✅",'callback_data'=>"new"]
+                ]
+            ]
+        ], JSON_UNESCAPED_UNICODE)
     ]);
 }
 
 if($data == "new"){
-    // 1. فحص الاشتراك الإجباري
+
     if(!is_joined($from_id, $channel)){
-        bot('sendmessage', [
+        bot('sendMessage', [
             'chat_id' => $chat_id,
-            'text' => "❌ حبيبي اشترك، وأرسل /start:\n\n$channel",
+            'text' => "❌ *اشترك حبيبي ودز* /start :\n$channel",
             'reply_markup' => json_encode([
-                'inline_keyboard' => [[['text' => "اضغط هنا✅", 'url' => "https://t.me/".str_replace('@','',$channel)]]]
-            ])
+                'inline_keyboard' => [
+                    [
+                        ['text'=>"مَـدار🪐",'url'=>"https://t.me/".str_replace('@','',$channel)]
+                    ]
+                ]
+            ], JSON_UNESCAPED_UNICODE)
         ]);
         return;
     }
 
-    // 2. فحص وقت الانتظار (ساعتين = 7200 ثانية)
+    $user_data = pg_fetch_assoc(pg_query($conn, "SELECT * FROM bot_users WHERE user_id = $from_id"));
+
     if($user_data['last_request']){
         $diff = time() - strtotime($user_data['last_request']);
         if($diff < 1800){
             $rem = 1800 - $diff;
-            $h = floor($rem/3600); $m = floor(($rem%3600)/60);
-            bot('answerCallbackQuery', ['callback_query_id'=>$update->callback_query->id, 'text'=>"😂⏳ يحلو متبقي  $h ساعة و $m ، دقيقة للطلب بعد.", 'show_alert'=>true]);
+            $m = floor($rem/60);
+
+            bot('answerCallbackQuery', [
+                'callback_query_id'=>$update->callback_query->id,
+                'text'=>"😑⏳ حبيبي باقي $m دقيقة",
+                'show_alert'=>true
+            ]);
             return;
         }
     }
 
     pg_query($conn, "UPDATE bot_users SET step = 'StartNew' WHERE user_id = $from_id");
-    bot('editmessagetext',[
+
+    bot('editMessageText',[
         'chat_id'=>$chat_id,
         'message_id'=>$message_id,
-        'text' => "*✔ دز رابط منشورك بالشكل:*\nhttps://t.me/qd3qd/6",
-        'parse_mode'=>"markdown",
+        'text'=>"*✔ دز رابط منشورك بالشكل:*\nhttps://t.me/qd3qd/6",
+        'parse_mode'=>"Markdown",
         'reply_markup'=>json_encode([
-            'inline_keyboard'=>[[['text'=>"• رجوع •", 'callback_data'=>'backk']]]
-        ])
+            'inline_keyboard'=>[
+                [
+                    ['text'=>"• رجوع •",'callback_data'=>"backk"]
+                ]
+            ]
+        ], JSON_UNESCAPED_UNICODE)
     ]);
 }
-
 if($text != "/start" and $user_data['step'] == "StartNew") {
     // تحديث الوقت والحالة فوراً
     pg_query($conn, "UPDATE bot_users SET step = 'none', last_request = NOW() WHERE user_id = $from_id");
