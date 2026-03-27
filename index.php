@@ -60,13 +60,18 @@ $user_data = pg_fetch_assoc($u_res);
 
 if($text == "/start") {
     pg_query($conn, "INSERT INTO bot_users (user_id, step) VALUES ($from_id, 'none') ON CONFLICT (user_id) DO UPDATE SET step = 'none'");
-    bot('sendmessage',[
+
+    bot('sendMessage',[
         'chat_id'=>$chat_id,
-        "text"=>"*- اهلا بك عزيزي ❲ $name ❳ في بوت رشق مشاهدات تلكرام\n- يمكنك رشق مشاهدات ( 10k ) لگل منشوراتك من خلال البوت مجانا*",
-        'parse_mode'=>"markdown",
+        'text'=>"*- اهلا بك عزيزي $name في بوت رشق مشاهدات تلكرام\n- يمكنك رشق مشاهدات ( 10k ) لگل منشوراتك من خلال البوت مجانا*",
+        'parse_mode'=>"Markdown",
         'reply_markup'=>json_encode([
-            'inline_keyboard'=>[[['text'=>"بدء رشق جديد 😂✅", 'callback_data'=>'new']]]
-        ])
+            'inline_keyboard'=>[
+                [
+                    ['text'=>"بدء رشق جديد 😂✅",'callback_data'=>"new"]
+                ]
+            ]
+        ], JSON_UNESCAPED_UNICODE)
     ]);
 }
 
