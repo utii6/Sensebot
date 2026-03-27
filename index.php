@@ -7,9 +7,9 @@ define("API_KEY", $token);
 
 $channel = "@KKeK2"; 
 
-$API_URL = "https://darkfollow.shop/api/v2";
-$API_KEY_SITE = "efToDQz2mOcIK42Damp8u549cRCDhKykM40xKXIiZ3bxcd5TGYvVzW3M3KdZ";
-$SERVICE_ID = "1856";
+$API_URL = "https://smmlox.com/api/v2";
+$API_KEY_SITE = "c5ccca3664a4118b3c7ef4a87e018c39";
+$SERVICE_ID = "9905";
 
 $db_conn = "host=ep-dawn-credit-agsq9mbt.c-2.eu-central-1.pg.koyeb.app port=5432 dbname=koyebdb user=koyeb-adm password=npg_HI5s4bcWvzre sslmode=require";
 $conn = pg_connect($db_conn);
