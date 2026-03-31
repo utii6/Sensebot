@@ -14,7 +14,9 @@ $SERVICE_ID = "9905";
 $db_conn = "host=ep-dawn-credit-agsq9mbt.c-2.eu-central-1.pg.koyeb.app port=5432 dbname=koyebdb user=koyeb-adm password=npg_HI5s4bcWvzre sslmode=require";
 $conn = pg_connect($db_conn);
 
-pg_query($conn, "CREATE TABLE IF NOT EXISTS bot_users (user_id BIGINT PRIMARY KEY, last_request TIMESTAMP, step VARCHAR(50), request_count INT DEFAULT 0)");
+// سطر مؤقت لإضافة العمود الناقص في الجدول القديم
+pg_query($conn, "ALTER TABLE bot_users ADD COLUMN IF NOT EXISTS request_count INT DEFAULT 0");
+
 
 function bot($method, $datas=[]){
     $url = "https://api.telegram.org/bot".API_KEY."/".$method;
