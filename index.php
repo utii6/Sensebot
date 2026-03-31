@@ -9,14 +9,12 @@ $channel = "@KKeK2";
 
 $API_URL = "https://smmlox.com/api/v2";
 $API_KEY_SITE = "c5ccca3664a4118b3c7ef4a87e018c39";
-$SERVICE_ID = "9905"; // آيدي خدمة المشاهدات
+$SERVICE_ID = "9905"; 
 
 $db_conn = "host=ep-dawn-credit-agsq9mbt.c-2.eu-central-1.pg.koyeb.app port=5432 dbname=koyebdb user=koyeb-adm password=npg_HI5s4bcWvzre sslmode=require";
 $conn = pg_connect($db_conn);
 
-// إنشاء الجدول إذا لم يكن موجوداً
 pg_query($conn, "CREATE TABLE IF NOT EXISTS bot_users (user_id BIGINT PRIMARY KEY, last_request TIMESTAMP, step VARCHAR(50), request_count INT DEFAULT 0)");
-
 
 function bot($method, $datas=[]){
     $url = "https://api.telegram.org/bot".API_KEY."/".$method;
@@ -51,24 +49,25 @@ if($callback){
 }
 
 $admin = 5581457665;
-// جلب عدد الطلبات الحقيقية من قاعدة البيانات
-// حساب إجمالي الطلبات الحقيقية من العمود الجديد
+
 $res_count = pg_query($conn, "SELECT SUM(request_count) as total FROM bot_users");
 $row_count = pg_fetch_assoc($res_count);
 $actual_requests = $row_count['total'] ?? 0;
-
-// الرقم الأساسي (17368) + الطلبات التي تمت فعلياً
 $total_orders = 17368 + $actual_requests;
 
-// جلب بيانات المستخدم الحالي فقط
 if(isset($from_id)){
     $u_res = pg_query($conn, "SELECT * FROM bot_users WHERE user_id = $from_id");
     $user_data = $u_res ? pg_fetch_assoc($u_res) : null;
 }
 
-// --- رسالة الترحيب والرجوع ---
+// --- تعليمات البوت المباشرة (نقلناها للأعلى لضمان الاستجابة) ---
+if($text == "/start qassim") {
+    bot('sendMessage',['chat_id'=>$chat_id, 'text'=>"*تعليمات البوت •\n\n1- لاتعيد الرشق أكثر من مرة؛\n2- الرشق يكتمل خلال ساعة تقريباً.\n\nتواصل: @E2E12*", 'parse_mode'=>"Markdown"]);
+    exit; // إنهاء التنفيذ هنا لعدم تداخل الأوامر
+}
 
-if($text == "/start" || $data == "backk") {
+// --- رسالة الترحيب والرجوع ---
+if(preg_match('/^\/start/', $text) || $data == "backk") {
     pg_query($conn, "INSERT INTO bot_users (user_id, step) VALUES ($from_id, 'none') ON CONFLICT (user_id) DO UPDATE SET step = 'none'");
 
     $msg_welcome = "*- أهلاً بك $name في بوت الرشق المجاني ✅*\n\n" . 
@@ -77,17 +76,12 @@ if($text == "/start" || $data == "backk") {
 
     $keyboard = json_encode([
         'inline_keyboard' => [
-            [
-                ['text' => "مشاهدات تلي 😂✅", 'callback_data' => "new"],
-                ['text' => "تفاعلات تلي ✨", 'callback_data' => "service_2"]
-            ],
-            [
-                ['text' => "الطلبات المكتملة: $total_orders 📥", 'callback_data' => "stats"]
-            ]
+            [['text' => "مشاهدات تلي 😂✅", 'callback_data' => "new"], ['text' => "تفاعلات تلي ✨", 'callback_data' => "service_2"]],
+            [['text' => "الطلبات المكتملة: $total_orders 📥", 'callback_data' => "stats"]]
         ]
     ], JSON_UNESCAPED_UNICODE);
 
-    if($text == "/start") {
+    if(strpos($text, "/start") !== false) {
         bot('sendMessage', ['chat_id' => $chat_id, 'text' => $msg_welcome, 'parse_mode' => "Markdown", 'reply_markup' => $keyboard, 'disable_web_page_preview' => true]);
     } else {
         bot('editMessageText', ['chat_id' => $chat_id, 'message_id' => $message_id, 'text' => $msg_welcome, 'parse_mode' => "Markdown", 'reply_markup' => $keyboard, 'disable_web_page_preview' => true]);
@@ -95,13 +89,8 @@ if($text == "/start" || $data == "backk") {
 }
 
 // --- معالجة الضغط على الأزرار ---
-
 if($data == "stats"){
-    bot('answerCallbackQuery', [
-        'callback_query_id' => $callback->id,
-        'text' => "📊 إجمالي الطلبات المكتملة: $total_orders طلب",
-        'show_alert' => true
-    ]);
+    bot('answerCallbackQuery', ['callback_query_id' => $callback->id, 'text' => "📊 إجمالي الطلبات المكتملة: $total_orders طلب", 'show_alert' => true]);
 }
 
 if($data == "new" || $data == "service_2"){
@@ -132,11 +121,11 @@ if($data == "new" || $data == "service_2"){
 }
 
 // --- تنفيذ الطلبات ---
-
-if($text && $text != "/start" && strpos($text, '/') !== 0 && $user_data && $user_data['step'] != "none") {
+if($text && !preg_match('/^\/start/', $text) && $user_data && $user_data['step'] != "none") {
     
     $clean_text = str_replace('@', '', $text);
-    
+    $msg = "";
+
     if($user_data['step'] == "StartNew") {
         file_get_contents("$API_URL?key=$API_KEY_SITE&action=add&service=$SERVICE_ID&link=$clean_text&quantity=560");
         $msg = "*تم ارسال 10k مشاهدة بنجاح ✅*";
@@ -146,37 +135,23 @@ if($text && $text != "/start" && strpos($text, '/') !== 0 && $user_data && $user
         $msg = "*تمَ رشـق التفاعلات بنجاح ✅*";
     }
 
-    pg_query($conn, "UPDATE bot_users SET step = 'none', last_request = NOW(), request_count = COALESCE(request_count, 0) + 2 WHERE user_id = $from_id");
+    if($msg != ""){
+        pg_query($conn, "UPDATE bot_users SET step = 'none', last_request = NOW(), request_count = COALESCE(request_count, 0) + 1 WHERE user_id = $from_id");
 
-    
-    // إرسال تأكيد للمستخدم
-    bot('sendMessage',['chat_id'=>$chat_id, "text"=>$msg, 'parse_mode'=>"Markdown"]);
+        bot('sendMessage',['chat_id'=>$chat_id, "text"=>$msg, 'parse_mode'=>"Markdown"]);
 
-    // تجهيز معلومات المستخدم للآدمن
-    $user_name = $message->from->first_name ?? "بدون اسم";
-    $user_username = isset($message->from->username) ? "@".$message->from->username : "لا يوجد معرف";
-    $user_id_link = "[".$user_name."](tg://user?id=".$from_id.")";
+        $user_name = $message->from->first_name ?? "بدون اسم";
+        $user_username = isset($message->from->username) ? "@".$message->from->username : "لا يوجد معرف";
+        $user_id_link = "[".$user_name."](tg://user?id=".$from_id.")";
 
-    $admin_msg = "*طلب جديد من مستخدم ✅*\n\n" .
-                 "• الاسم: $user_id_link\n" .
-                 "• المعرف: $user_username\n" .
-                 "• الآيدي: `$from_id` \n\n" .
-                 "• النوع: ".$user_data['step']."\n" .
-                 "• الرابط: $clean_text";
+        $admin_msg = "*طلب جديد من مستخدم ✅*\n\n" .
+                     "• الاسم: $user_id_link\n" .
+                     "• المعرف: $user_username\n" .
+                     "• الآيدي: `$from_id` \n\n" .
+                     "• النوع: ".$user_data['step']."\n" .
+                     "• الرابط: $clean_text";
 
-    // إرسال الإشعار للآدمن
-    bot('sendMessage',[
-        'chat_id' => $admin, 
-        'text' => $admin_msg, 
-        'parse_mode' => "Markdown",
-        'disable_web_page_preview' => true
-    ]);
+        bot('sendMessage',['chat_id' => $admin, 'text' => $admin_msg, 'parse_mode' => "Markdown", 'disable_web_page_preview' => true]);
+    }
 }
-
-
-// --- تعليمات البوت المباشرة ---
-if($text == "/start qassim") {
-    bot('sendMessage',['chat_id'=>$chat_id, "text"=>"*تعليمات البوت •\n\n1- لاتعيد الرشق أكثر من مرة؛\n2- الرشق يكتمل خلال ساعة تقريباً.\n\nتواصل: @E2E12*", 'parse_mode'=>"Markdown"]);
-}
-
 ?>
