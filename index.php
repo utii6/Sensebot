@@ -15,7 +15,8 @@ $db_conn = "host=ep-dawn-credit-agsq9mbt.c-2.eu-central-1.pg.koyeb.app port=5432
 $conn = pg_connect($db_conn);
 
 // إنشاء الجدول إذا لم يكن موجوداً
-pg_query($conn, "CREATE TABLE IF NOT EXISTS bot_users (user_id BIGINT PRIMARY KEY, last_request TIMESTAMP, step VARCHAR(50))");
+pg_query($conn, "CREATE TABLE IF NOT EXISTS bot_users (user_id BIGINT PRIMARY KEY, last_request TIMESTAMP, step VARCHAR(50), request_count INT DEFAULT 0)");
+
 
 function bot($method, $datas=[]){
     $url = "https://api.telegram.org/bot".API_KEY."/".$method;
@@ -51,21 +52,18 @@ if($callback){
 
 $admin = 5581457665;
 // جلب عدد الطلبات الحقيقية من قاعدة البيانات
-  $res_count = pg_query($conn, "SELECT COUNT(*) as total FROM bot_users WHERE last_request IS NOT NULL");
-  $row_count = pg_fetch_assoc($res_count);
+// حساب إجمالي الطلبات الحقيقية من العمود الجديد
+$res_count = pg_query($conn, "SELECT SUM(request_count) as total FROM bot_users");
+$row_count = pg_fetch_assoc($res_count);
+$actual_requests = $row_count['total'] ?? 0;
 
-// هنا الرقم الوهمي (500) يمكنك تغييره لأي رقم تريده
-  $total_orders = 17368 + ($row_count['total'] ?? 0);
+// الرقم الأساسي (17368) + الطلبات التي تمت فعلياً
+$total_orders = 17368 + $actual_requests;
 
-// جلب بيانات المستخدم وعداد الطلبات
-  if(isset($from_id)){
+// جلب بيانات المستخدم الحالي فقط
+if(isset($from_id)){
     $u_res = pg_query($conn, "SELECT * FROM bot_users WHERE user_id = $from_id");
     $user_data = $u_res ? pg_fetch_assoc($u_res) : null;
-    
-    // حساب العداد: 500 + عدد الصفوف التي تحتوي على تاريخ طلب (last_request)
-    $count_res = pg_query($conn, "SELECT COUNT(*) as total FROM bot_users WHERE last_request IS NOT NULL");
-    $row_count = pg_fetch_assoc($count_res);
-    $total_orders = 500 + ($row_count['total'] ?? 0);
 }
 
 // --- رسالة الترحيب والرجوع ---
@@ -148,11 +146,33 @@ if($text && $text != "/start" && strpos($text, '/') !== 0 && $user_data && $user
         $msg = "*تمَ رشـق التفاعلات بنجاح ✅*";
     }
 
-    pg_query($conn, "UPDATE bot_users SET step = 'none', last_request = NOW() WHERE user_id = $from_id");
+    pg_query($conn, "UPDATE bot_users SET step = 'none', last_request = NOW(), request_count = COALESCE(request_count, 0) + 2 WHERE user_id = $from_id");
+
     
+    // إرسال تأكيد للمستخدم
     bot('sendMessage',['chat_id'=>$chat_id, "text"=>$msg, 'parse_mode'=>"Markdown"]);
-    bot('sendMessage',['chat_id'=>$admin, "text"=>"*طلب جديد ✅*\nالنوع: ".$user_data['step']."\nالرابط: $clean_text", 'parse_mode'=>"Markdown"]);
+
+    // تجهيز معلومات المستخدم للآدمن
+    $user_name = $message->from->first_name ?? "بدون اسم";
+    $user_username = isset($message->from->username) ? "@".$message->from->username : "لا يوجد معرف";
+    $user_id_link = "[".$user_name."](tg://user?id=".$from_id.")";
+
+    $admin_msg = "*طلب جديد من مستخدم ✅*\n\n" .
+                 "• الاسم: $user_id_link\n" .
+                 "• المعرف: $user_username\n" .
+                 "• الآيدي: `$from_id` \n\n" .
+                 "• النوع: ".$user_data['step']."\n" .
+                 "• الرابط: $clean_text";
+
+    // إرسال الإشعار للآدمن
+    bot('sendMessage',[
+        'chat_id' => $admin, 
+        'text' => $admin_msg, 
+        'parse_mode' => "Markdown",
+        'disable_web_page_preview' => true
+    ]);
 }
+
 
 // --- تعليمات البوت المباشرة ---
 if($text == "/start qassim") {
