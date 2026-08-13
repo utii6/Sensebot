@@ -7,9 +7,9 @@ define("API_KEY", $token);
 
 $channel = getenv('CHANNEL_USERNAME') ?: "@KKeK2"; 
 
-$API_URL = "https://smmlox.com/api/v2";
+$API_URL = "https://kd1s.com/api/v2";
 $API_KEY_SITE = getenv('SMM_API_KEY') ?: "c5ccca3664a4118b3c7ef4a87e018c39";
-$SERVICE_ID = "9905"; 
+$SERVICE_ID = "17893"; 
 
 $admin = getenv('ADMIN_ID') ? (int)getenv('ADMIN_ID') : 5581457665;
 
