@@ -17,15 +17,8 @@ $admin = getenv('ADMIN_ID') ? (int)getenv('ADMIN_ID') : 5581457665;
 $xo_game_url = getenv('XO_GAME_URL') ?: "https://xo-game-app.onrender.com"; 
 
 // --- الاتصال بقاعدة بيانات Supabase عبر متغيرات البيئة ---
-$db_host = getenv('SUPABASE_DB_HOST') ?: "db.xxxxxxxxxxxx.supabase.co";
-$db_port = getenv('SUPABASE_DB_PORT') ?: "5432";
-$db_name = getenv('SUPABASE_DB_NAME') ?: "postgres";
-$db_user = getenv('SUPABASE_DB_USER') ?: "postgres";
-$db_pass = getenv('SUPABASE_DB_PASSWORD') ?: "";
-
-// السلسلة الخاصة بالاتصال المباشر (Direct Connection / Transaction Pooler)
-$db_conn = "host=$db_host port=$db_port dbname=$db_name user=$db_user password=$db_pass sslmode=require";
-$conn = @pg_connect($db_conn);
+$database_url = getenv('DATABASE_URL');
+$conn = $database_url ? @pg_connect($database_url) : false;
 
 if (!$conn) {
     error_log("خطأ في الاتصال بقاعدة بيانات Supabase");
@@ -110,17 +103,17 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
     $msg_welcome = "*- أهلاً بك $name في بوت الرشق المجاني ✅*\n\n" . 
                    "• يمكنك زيادة مشاهدات وتفاعلات منشوراتك مجاناً.\n" .
                    "• يمكنك أيضاً اللعب والاستمتاع بلعبة XO داخل البوت 🎮.\n" .
-                   "• يرجى مراجعة [تعليمات البوت](https://t.me/GE_Pbot?start=qassim) قبل البدء.";
+                   "• يرجى مراجعة [تعليمات البوت](https://t.me/VVJJbot?start=qassim) قبل البدء.";
 
-    // لوحة الأزرار الشفافة والملونة الحديثة مع زر Mini App للعبة XO
+    // لوحة الأزرار الشفافة والملونة الحديثة مع خيارات Style وتطبيق لعبة XO
     $keyboard = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "🎮 العب لعبة XO الآن!", 'web_app' => ['url' => $xo_game_url]]
+                ['text' => "🎮 العب لعبة XO الآن!", 'web_app' => ['url' => $xo_game_url], 'style' => "primary"]
             ],
             [
-                ['text' => "👀 مشاهدات تليجرام", 'callback_data' => "new"], 
-                ['text' => "✨ تفاعلات تليجرام", 'callback_data' => "service_2"]
+                ['text' => "👀 مشاهدات تليجرام", 'callback_data' => "new", 'style' => "success"], 
+                ['text' => "✨ تفاعلات تليجرام", 'callback_data' => "service_2", 'style' => "success"]
             ],
             [
                 ['text' => "📊 الطلبات المكتملة: $total_orders 📥", 'callback_data' => "stats"]
@@ -166,7 +159,7 @@ if($data == "new" || $data == "service_2"){
         'message_id'=>$message_id,
         'text'=>"✔ *أرسل رابط المنشور الآن (مثال: https://t.me/qd3qd/6)*",
         'parse_mode'=>"Markdown",
-        'reply_markup'=>json_encode(['inline_keyboard'=>[[['text'=>"🔙 رجوع",'callback_data'=>"backk"]]]])
+        'reply_markup'=>json_encode(['inline_keyboard'=>[[['text'=>"🔙 رجوع",'callback_data'=>"backk", 'style' => "danger"]]]])
     ]);
 }
 
