@@ -100,13 +100,40 @@ if(isset($from_id) && $conn){
 
 // --- تعليمات البوت المباشرة ---
 if($text == "/start qassim") {
-    bot('sendMessage',[
-        'chat_id'=>$chat_id, 
-        'text'=>"*تعليمات البوت •\n\n1- لا تُعد الرشق أكثر من مرة؛\n2- الرشق يكتمل خلال ساعة تقريباً.\n\nتواصل: @E2E12*", 
-        'parse_mode'=>"Markdown"
+    $instructions_text = "📖 *دليل واستخدام البوت والشروط •*\n\n" .
+                         "🔹 *طريقة العمل:*\n" .
+                         "1️⃣ اختر الخدمة المطلوبة من القائمة الرئيسية (مشاهدات أو تفاعلات).\n" .
+                         "2️⃣ قم بنسخ رابط منشور تليجرام وإرساله للبوت بشكل صحيح.\n" .
+                         "3️⃣ سيقوم البوت برفع طلبك تلقائياً وبدء المعالجة.\n\n" .
+                         "⚠️ *شروط التعليمات والاستخدام:*\n" .
+                         "• يُمنع تكرار طلب الرشق لنفس الرابط أكثر من مرة أثناء التنفيذ.\n" .
+                         "• يستغرق مكتمل الرشق عادةً من 15 دقيقة إلى ساعة كحد أقصى.\n" .
+                         "• تأكد أن القناة والمنشور عام وليس خاصاً لضمان وصول الخدمة.\n" .
+                         "• يوجد مهلة انتظار (30 دقيقة) بين كل طلب وآخر، ويمكنك إلغاؤها بدعوة صديق عبر رابطك الخاص.";
+
+    $instructions_keyboard = json_encode([
+        'inline_keyboard' => [
+            [
+                ['text' => "الدعم الفني 👨🏼‍💻", 'url' => "https://t.me/E2E12", 'style' => "success", 'icon_custom_emoji_id' => "5312348509121209999"]
+
+            ],
+            [
+                ['text' => "العودة للقائمة الرئيسية", 'callback_data' => "backk", 'style' => "danger", 'icon_custom_emoji_id' => "5344568509012302222"]
+
+            ]
+        ]
+    ], JSON_UNESCAPED_UNICODE);
+
+    bot('sendMessage', [
+        'chat_id' => $chat_id, 
+        'text' => $instructions_text, 
+        'parse_mode' => "Markdown",
+        'reply_markup' => $instructions_keyboard,
+        'disable_web_page_preview' => true
     ]);
     exit;
 }
+
 
 // --- لوحة التحكم للأدمن (/admin والإذاعة) ---
 if($from_id == $admin) {
@@ -175,19 +202,44 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
     $keyboard = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "🎮 العب لعبة XO الآن!", 'web_app' => ['url' => $xo_game_url], 'style' => "primary"]
+                [
+                    'text' => "🎮 العب لعبة XO الآن!", 
+                    'web_app' => ['url' => $xo_game_url], 
+                    'style' => "primary",
+                    'icon_custom_emoji_id' => "5359489508235281850" // إيموجي الألعاب
+                ]
             ],
             [
-                ['text' => "👀 مشاهدات تليجرام", 'callback_data' => "new", 'style' => "success"], 
-                ['text' => "✨ تفاعلات تليجرام", 'callback_data' => "service_2", 'style' => "success"]
+                [
+                    'text' => "👀 مشاهدات تليجرام", 
+                    'callback_data' => "new", 
+                    'style' => "success",
+                    'icon_custom_emoji_id' => "5404558509012301824" // إيموجي المشاهدات
+                ], 
+                [
+                    'text' => "✨ تفاعلات تليجرام", 
+                    'callback_data' => "service_2", 
+                    'style' => "success",
+                    'icon_custom_emoji_id' => "5382348509121201201" // إيموجي التفاعلات
+                ]
             ],
             [
-                ['text' => "🔗 رابط الدعوة الخاص بك", 'callback_data' => "ref_link", 'style' => "primary"]
+                [
+                    'text' => "🔗 رابط الدعوة الخاص بك", 
+                    'callback_data' => "ref_link", 
+                    'style' => "primary",
+                    'icon_custom_emoji_id' => "5395568509012301111" // إيموجي الرابط
+                ]
             ],
             [
-                ['text' => "📊 الطلبات المكتملة: $total_orders 📥", 'callback_data' => "stats"]
+                [
+                    'text' => "📊 الطلبات المكتملة: $total_orders 📥", 
+                    'callback_data' => "stats",
+                    'icon_custom_emoji_id' => "5377548509012304444" // إيموجي الإحصائيات
+                ]
             ]
         ]
+
     ], JSON_UNESCAPED_UNICODE);
 
     if(strpos($text, "/start") !== false) {
