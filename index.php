@@ -114,11 +114,11 @@ if($text == "/start qassim") {
     $instructions_keyboard = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "الدعم الفني 👨🏼‍💻", 'url' => "https://t.me/E2E12", 'style' => "success", 'icon_custom_emoji_id' => "5319161050128459957"]
+                ['text' => "الدعم الفني", 'url' => "https://t.me/E2E12", 'style' => "success", 'icon_custom_emoji_id' => "5319161050128459957"]
 
             ],
             [
-                ['text' => "العودة للقائمة الرئيسية", 'callback_data' => "backk", 'style' => "danger", 'icon_custom_emoji_id' => "5352637154809879587"]
+                ['text' => "رجوع", 'callback_data' => "backk", 'style' => "danger", 'icon_custom_emoji_id' => "5352637154809879587"]
 
             ]
         ]
@@ -203,7 +203,7 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
         'inline_keyboard' => [
             [
                 [
-                    'text' => "🎮 العب لعبة XO الآن!", 
+                    'text' => "العب لعبة XO!", 
                     'web_app' => ['url' => $xo_game_url], 
                     'style' => "primary",
                     'icon_custom_emoji_id' => "5843973184314937720" // إيموجي الألعاب
@@ -211,13 +211,13 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
             ],
             [
                 [
-                    'text' => "👀 مشاهدات تليجرام", 
+                    'text' => "مشاهدات تليجرام", 
                     'callback_data' => "new", 
                     'style' => "success",
                     'icon_custom_emoji_id' => "5402160988181009033" // إيموجي المشاهدات
                 ], 
                 [
-                    'text' => "✨ تفاعلات تليجرام", 
+                    'text' => "تفاعلات تليجرام", 
                     'callback_data' => "service_2", 
                     'style' => "success",
                     'icon_custom_emoji_id' => "5303438381743618017" // إيموجي التفاعلات
@@ -225,7 +225,7 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
             ],
             [
                 [
-                    'text' => "🔗 رابط الدعوة الخاص بك", 
+                    'text' => "رابط الدعوة الخاص بك", 
                     'callback_data' => "ref_link", 
                     'style' => "primary",
                     'icon_custom_emoji_id' => "5271604874419647061" // إيموجي الرابط
@@ -233,7 +233,7 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
             ],
             [
                 [
-                    'text' => "📊 الطلبات المكتملة: $total_orders 📥", 
+                    'text' => "الطلبات المكتملة: $total_orders ", 
                     'callback_data' => "stats",
                     'icon_custom_emoji_id' => "5206607081334906820" // إيموجي الإحصائيات
                 ]
@@ -258,16 +258,42 @@ if($data == "ref_link"){
     $my_ref_url = "https://t.me/$bot_username?start=$from_id";
     $ref_count = $user_data['referrals_count'] ?? 0;
     
-    $ref_msg = "🔗 *رابط الدعوة الخاص بك:*\n`$my_ref_url`\n\n" .
-               "👥 *عدد دعواتك الحالية:* `$ref_count`\n\n" .
-               "💡 *الميزة:* عند مشاركة هذا الرابط مع صديق جديد، سيتم إلغاء وقت الانتظار (الـ 30 دقيقة) فوراً لتتمكن من الطلب مجدداً!";
+    $my_ref_url = "https://t.me/$bot_username?start=$from_id";
+    $ref_count = $user_data['referrals_count'] ?? 0;
+    
+    $share_text = urlencode("🎁 اشترك في هذا البوت المجاني لزيادة مشاهدات وتفاعلات تليجرام بسرعة وسهولة!");
+    $share_url = "https://t.me/share/url?url=" . urlencode($my_ref_url) . "&text=" . $share_text;
+    
+    $ref_msg = "<tg-emoji emoji-id=\"5395568509012301111\">🔗</tg-emoji> <b>رابط الدعوة الخاص بك:</b>\n<code>$my_ref_url</code>\n\n" .
+               "👥 <b>عدد دعواتك الحالية:</b> <code>$ref_count</code>\n\n" .
+               "💡 <b>الميزة:</b> عند مشاركة هذا الرابط مع صديق جديد، سيتم إلغاء وقت الانتظار (30 دقيقة) فوراً لتتمكن من الطلب مجدداً!";
                
     bot('editMessageText', [
         'chat_id' => $chat_id,
         'message_id' => $message_id,
         'text' => $ref_msg,
-        'parse_mode' => "Markdown",
-        'reply_markup' => json_encode(['inline_keyboard' => [[['text' => "🔙 رجوع", 'callback_data' => "backk", 'style' => "danger"]]]])
+        'parse_mode' => "HTML",
+        'disable_web_page_preview' => true,
+        'reply_markup' => json_encode([
+            'inline_keyboard' => [
+                [
+                    [
+                        'text' => " مشاركة الرابط", 
+                        'url' => $share_url, 
+                        'style' => "success",
+                        'icon_custom_emoji_id' => "5271604874419647061"
+                    ]
+                ],
+                [
+                    [
+                        'text' => "🔙 رجوع", 
+                        'callback_data' => "backk", 
+                        'style' => "danger",
+                        'icon_custom_emoji_id' => "5352759161945867747"
+                    ]
+                ]
+            ]
+        ], JSON_UNESCAPED_UNICODE)
     ]);
 }
 
