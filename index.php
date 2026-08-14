@@ -114,11 +114,11 @@ if($text == "/start qassim") {
     $instructions_keyboard = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "الدعم الفني 👨🏼‍💻", 'url' => "https://t.me/E2E12", 'style' => "success", 'icon_custom_emoji_id' => "5312348509121209999"]
+                ['text' => "الدعم الفني 👨🏼‍💻", 'url' => "https://t.me/E2E12", 'style' => "success", 'icon_custom_emoji_id' => "5319161050128459957"]
 
             ],
             [
-                ['text' => "العودة للقائمة الرئيسية", 'callback_data' => "backk", 'style' => "danger", 'icon_custom_emoji_id' => "5344568509012302222"]
+                ['text' => "العودة للقائمة الرئيسية", 'callback_data' => "backk", 'style' => "danger", 'icon_custom_emoji_id' => "5352637154809879587"]
 
             ]
         ]
@@ -206,7 +206,7 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
                     'text' => "🎮 العب لعبة XO الآن!", 
                     'web_app' => ['url' => $xo_game_url], 
                     'style' => "primary",
-                    'icon_custom_emoji_id' => "5359489508235281850" // إيموجي الألعاب
+                    'icon_custom_emoji_id' => "5843973184314937720" // إيموجي الألعاب
                 ]
             ],
             [
@@ -214,13 +214,13 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
                     'text' => "👀 مشاهدات تليجرام", 
                     'callback_data' => "new", 
                     'style' => "success",
-                    'icon_custom_emoji_id' => "5404558509012301824" // إيموجي المشاهدات
+                    'icon_custom_emoji_id' => "5402160988181009033" // إيموجي المشاهدات
                 ], 
                 [
                     'text' => "✨ تفاعلات تليجرام", 
                     'callback_data' => "service_2", 
                     'style' => "success",
-                    'icon_custom_emoji_id' => "5382348509121201201" // إيموجي التفاعلات
+                    'icon_custom_emoji_id' => "5303438381743618017" // إيموجي التفاعلات
                 ]
             ],
             [
@@ -228,14 +228,14 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
                     'text' => "🔗 رابط الدعوة الخاص بك", 
                     'callback_data' => "ref_link", 
                     'style' => "primary",
-                    'icon_custom_emoji_id' => "5395568509012301111" // إيموجي الرابط
+                    'icon_custom_emoji_id' => "5271604874419647061" // إيموجي الرابط
                 ]
             ],
             [
                 [
                     'text' => "📊 الطلبات المكتملة: $total_orders 📥", 
                     'callback_data' => "stats",
-                    'icon_custom_emoji_id' => "5377548509012304444" // إيموجي الإحصائيات
+                    'icon_custom_emoji_id' => "5206607081334906820" // إيموجي الإحصائيات
                 ]
             ]
         ]
@@ -310,7 +310,7 @@ if($text && !preg_match('/^\/start/', $text) && $user_data && $user_data['step']
     if(!is_valid_telegram_url($clean_text)) {
         bot('sendMessage', [
             'chat_id' => $chat_id, 
-            'text' => "❌ *الرابط الذي أرسلته غير صالـح!*\nيرجى إرسال رابط منشور تليجرام صحيح بالشكل التالي:\n`https://t.me/channel/123`", 
+            'text' => "❌ *الرابط الذي أرسلته غير صالـح!*\nيرجى إرسال رابط منشور تليجرام صحيح بالشكل التالي:\n`https://t.me/qd3qd/6`", 
             'parse_mode' => "Markdown"
         ]);
         return;
