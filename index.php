@@ -255,20 +255,21 @@ if($data == "stats"){
 }
 
 if($data == "ref_link"){
+    bot('answerCallbackQuery', [
+        'callback_query_id' => $callback->id
+    ]);
+
     $my_ref_url = "https://t.me/$bot_username?start=$from_id";
     $ref_count = $user_data['referrals_count'] ?? 0;
-    
-    $my_ref_url = "https://t.me/$bot_username?start=$from_id";
-    $ref_count = $user_data['referrals_count'] ?? 0;
-    
+
     $share_text = urlencode("🎁 اشترك في هذا البوت المجاني لزيادة مشاهدات وتفاعلات تليجرام بسرعة وسهولة!");
     $share_url = "https://t.me/share/url?url=" . urlencode($my_ref_url) . "&text=" . $share_text;
-    
+
     $ref_msg = "<tg-emoji emoji-id=\"5395568509012301111\">🔗</tg-emoji> <b>رابط الدعوة الخاص بك:</b>\n\n" .
-           "<a href=\"$my_ref_url\">$my_ref_url</a>\n\n" .
-           "👥 <b>عدد دعواتك :</b> <code>$ref_count</code>\n\n" .
-           "💡 <b>الميزة:</b> عند مشاركة هذا الرابط مع صديق جديد، سيتم إلغاء وقت الانتظار (30 دقيقة) فوراً لتتمكن من الطلب مجدداً!";
-               
+               "<a href=\"$my_ref_url\">$my_ref_url</a>\n\n" .
+               "👥 <b>عدد دعواتك الحالية:</b> <code>$ref_count</code>\n\n" .
+               "💡 <b>الميزة:</b> عند مشاركة هذا الرابط مع صديق جديد، سيتم إلغاء وقت الانتظار (30 دقيقة) فوراً لتتمكن من الطلب مجدداً!";
+
     bot('editMessageText', [
         'chat_id' => $chat_id,
         'message_id' => $message_id,
@@ -279,16 +280,16 @@ if($data == "ref_link"){
             'inline_keyboard' => [
                 [
                     [
-                        'text' => " مشاركة الرابط", 
-                        'url' => $share_url, 
+                        'text' => "مشاركة الرابط",
+                        'url' => $share_url,
                         'style' => "success",
                         'icon_custom_emoji_id' => "5271604874419647061"
                     ]
                 ],
                 [
                     [
-                        'text' => "🔙 رجوع", 
-                        'callback_data' => "backk", 
+                        'text' => "🔙 رجوع",
+                        'callback_data' => "backk",
                         'style' => "danger",
                         'icon_custom_emoji_id' => "5352759161945867747"
                     ]
