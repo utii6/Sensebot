@@ -67,34 +67,6 @@ $chat_id = $message->chat->id ?? null;
 $name = $message->from->first_name ?? '';
 $from_id = $message->from->id ?? null;
 
-// --- تفاعل عشوائي مع كل رسالة تصل من المستخدم ---
-if ($message && $chat_id && $from_id && !empty($message->message_id)) {
-
-    $reactions = [
-        '👍',
-        '❤️',
-        '🔥',
-        '😂',
-        '👀',
-        '🤯',
-        '👏',
-        '😎'
-    ];
-
-    $random_reaction = $reactions[array_rand($reactions)];
-
-    bot('setMessageReaction', [
-        'chat_id' => $chat_id,
-        'message_id' => $message->message_id,
-        'reaction' => json_encode([
-            [
-                'type' => 'emoji',
-                'emoji' => $random_reaction
-            ]
-        ], JSON_UNESCAPED_UNICODE)
-    ]);
-}
-
 if($callback){
     $chat_id = $callback->message->chat->id ?? null;
     $from_id = $callback->from->id ?? null;
@@ -156,6 +128,24 @@ if($text == "/start qassim") {
         'reply_markup' => $instructions_keyboard,
         'disable_web_page_preview' => true
     ]);
+
+    // تفاعل مع الرسالة
+    if ($message && !empty($message->message_id)) {
+        $reactions = ['👍', '❤️', '🔥', '😂', '👀', '🤯', '👏', '😎'];
+        $random_reaction = $reactions[array_rand($reactions)];
+
+        bot('setMessageReaction', [
+            'chat_id' => $chat_id,
+            'message_id' => $message->message_id,
+            'reaction' => json_encode([
+                [
+                    'type' => 'emoji',
+                    'emoji' => $random_reaction
+                ]
+            ], JSON_UNESCAPED_UNICODE)
+        ]);
+    }
+
     exit;
 }
 
@@ -397,4 +387,33 @@ if($text && !preg_match('/^\/start/', $text) && $user_data && $user_data['step']
         bot('sendMessage',['chat_id' => $admin, 'text' => $admin_msg, 'parse_mode' => "Markdown", 'disable_web_page_preview' => true]);
     }
 }
+
+// --- التفاعل العشوائي مع كل رسالة تصل من المستخدم ---
+if ($message && $chat_id && $from_id && !empty($message->message_id)) {
+
+    $reactions = [
+        '👍',
+        '❤️',
+        '🔥',
+        '😂',
+        '👀',
+        '🤯',
+        '👏',
+        '😎'
+    ];
+
+    $random_reaction = $reactions[array_rand($reactions)];
+
+    bot('setMessageReaction', [
+        'chat_id' => $chat_id,
+        'message_id' => $message->message_id,
+        'reaction' => json_encode([
+            [
+                'type' => 'emoji',
+                'emoji' => $random_reaction
+            ]
+        ], JSON_UNESCAPED_UNICODE)
+    ]);
+}
+
 ?>
