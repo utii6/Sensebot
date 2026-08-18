@@ -2,13 +2,13 @@
 ob_start();
 
 // --- قراءة الإعدادات ومتغيرات البيئة (Render Environment Variables) ---
-$token = getenv('BOT_TOKEN') ?: "6238340112:AAEl9pNeqoq0A6TsahuhLZYeO-cWmnQCJKQ";
+$token = getenv('BOT_TOKEN') ?: "ضع_توكن_البوت_هنا";
 define("API_KEY", $token);
 
 $channel = getenv('CHANNEL_USERNAME') ?: "@KKeK2"; 
 
 $API_URL = "https://kd1s.com/api/v2";
-$API_KEY_SITE = getenv('SMM_API_KEY') ?: "c5ccca3664a4118b3c7ef4a87e018c39";
+$API_KEY_SITE = getenv('SMM_API_KEY') ?: "ضع_مفتاح_SMM_هنا";
 $SERVICE_ID = "17893"; 
 
 $admin = getenv('ADMIN_ID') ? (int)getenv('ADMIN_ID') : 5581457665;
@@ -23,7 +23,6 @@ $conn = $database_url ? @pg_connect($database_url) : false;
 if (!$conn) {
     error_log("خطأ في الاتصال بقاعدة بيانات Supabase");
 } else {
-    // إنشاء الجدول وتحديث الأعمدة تلقائياً
     pg_query($conn, "CREATE TABLE IF NOT EXISTS bot_users (
         user_id BIGINT PRIMARY KEY,
         step VARCHAR(50) DEFAULT 'none',
@@ -67,6 +66,34 @@ $text = $message->text ?? null;
 $chat_id = $message->chat->id ?? null;
 $name = $message->from->first_name ?? '';
 $from_id = $message->from->id ?? null;
+
+// --- تفاعل عشوائي مع كل رسالة تصل من المستخدم ---
+if ($message && $chat_id && $from_id && !empty($message->message_id)) {
+
+    $reactions = [
+        '👍',
+        '❤️',
+        '🔥',
+        '😂',
+        '👀',
+        '🤯',
+        '👏',
+        '😎'
+    ];
+
+    $random_reaction = $reactions[array_rand($reactions)];
+
+    bot('setMessageReaction', [
+        'chat_id' => $chat_id,
+        'message_id' => $message->message_id,
+        'reaction' => json_encode([
+            [
+                'type' => 'emoji',
+                'emoji' => $random_reaction
+            ]
+        ], JSON_UNESCAPED_UNICODE)
+    ]);
+}
 
 if($callback){
     $chat_id = $callback->message->chat->id ?? null;
@@ -115,11 +142,9 @@ if($text == "/start qassim") {
         'inline_keyboard' => [
             [
                 ['text' => "الدعم الفني", 'url' => "https://t.me/E2E12", 'style' => "success", 'icon_custom_emoji_id' => "5319161050128459957"]
-
             ],
             [
                 ['text' => "رجوع", 'callback_data' => "backk", 'style' => "danger", 'icon_custom_emoji_id' => "5352637154809879587"]
-
             ]
         ]
     ], JSON_UNESCAPED_UNICODE);
@@ -206,7 +231,7 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
                     'text' => "العب لعبة XO!", 
                     'web_app' => ['url' => $xo_game_url], 
                     'style' => "primary",
-                    'icon_custom_emoji_id' => "5843973184314937720" // إيموجي الألعاب
+                    'icon_custom_emoji_id' => "5843973184314937720"
                 ]
             ],
             [
@@ -214,13 +239,13 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
                     'text' => "مشاهدات تليجرام", 
                     'callback_data' => "new", 
                     'style' => "success",
-                    'icon_custom_emoji_id' => "5402160988181009033" // إيموجي المشاهدات
+                    'icon_custom_emoji_id' => "5402160988181009033"
                 ], 
                 [
                     'text' => "تفاعلات تليجرام", 
                     'callback_data' => "service_2", 
                     'style' => "success",
-                    'icon_custom_emoji_id' => "5303438381743618017" // إيموجي التفاعلات
+                    'icon_custom_emoji_id' => "5303438381743618017"
                 ]
             ],
             [
@@ -228,14 +253,14 @@ if(preg_match('/^\/start/', $text) || $data == "backk") {
                     'text' => "رابط الدعوة الخاص بك", 
                     'callback_data' => "ref_link", 
                     'style' => "primary",
-                    'icon_custom_emoji_id' => "5271604874419647061" // إيموجي الرابط
+                    'icon_custom_emoji_id' => "5271604874419647061"
                 ]
             ],
             [
                 [
                     'text' => "الطلبات المكتملة: $total_orders ", 
                     'callback_data' => "stats",
-                    'icon_custom_emoji_id' => "5206607081334906820" // إيموجي الإحصائيات
+                    'icon_custom_emoji_id' => "5206607081334906820"
                 ]
             ]
         ]
@@ -258,13 +283,11 @@ if($data == "ref_link"){
     $my_ref_url = "https://t.me/$bot_username?start=$from_id";
     $ref_count = $user_data['referrals_count'] ?? 0;
     
-    $my_ref_url = "https://t.me/$bot_username?start=$from_id";
-    $ref_count = $user_data['referrals_count'] ?? 0;
-    
     $share_text = urlencode("🎁 اشترك في هذا البوت المجاني لزيادة مشاهدات وتفاعلات تليجرام بسرعة وسهولة!");
     $share_url = "https://t.me/share/url?url=" . urlencode($my_ref_url) . "&text=" . $share_text;
     
-    $ref_msg = "<tg-emoji emoji-id=\"5395568509012301111\">🔗</tg-emoji> <b>رابط الدعوة الخاص بك:</b>\n<code>$my_ref_url</code>\n\n" .
+    $ref_msg = "<tg-emoji emoji-id=\"5395568509012301111\">🔗</tg-emoji> <b>رابط الدعوة الخاص بك:</b>\n\n" .
+               "<a href=\"$my_ref_url\">اضغط هنا لفتح رابط الدعوة 🔗</a>\n\n" .
                "👥 <b>عدد دعواتك الحالية:</b> <code>$ref_count</code>\n\n" .
                "💡 <b>الميزة:</b> عند مشاركة هذا الرابط مع صديق جديد، سيتم إلغاء وقت الانتظار (30 دقيقة) فوراً لتتمكن من الطلب مجدداً!";
                
@@ -323,7 +346,7 @@ if($data == "new" || $data == "service_2"){
         'message_id'=>$message_id,
         'text'=>"✔ *أرسل رابط المنشور الآن (مثال: https://t.me/qd3qd/6)*",
         'parse_mode'=>"Markdown",
-        'reply_markup'=>json_encode(['inline_keyboard'=>[[['text'=>"🔙 رجوع",'callback_data'=>"backk", 'style' => "danger"]]]])
+        'reply_markup'=>json_encode(['inline_keyboard'=>[[['text'=>"🔙 رجوع",'callback_data'=>"backk", 'style' => "danger"]]])
     ]);
 }
 
